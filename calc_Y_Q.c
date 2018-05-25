@@ -586,7 +586,7 @@ int chk_FH(double *Q, double *Q_c, int N)
 	{
 		k_min = k_1;
 	}
-	printf("---------k_0=%f\tk_1=%f---------\n", k_0,k_1);
+	printf("---------k_0=%.0f\tk_1=%.0f---------\n", k_0,k_1);
 	printf("---------默认显著性水平α=0.05，是否接受？(接受请输入1，否则为0):");
 	scanf("%d", &accdny);
 	if (accdny == 0 )
@@ -603,7 +603,7 @@ int chk_FH(double *Q, double *Q_c, int N)
 	}
 	//printf("<debug--fh>  N==%lf\tk_min==%lf\t\n", (double)N, (double)k_min);
 	u = (0.5 * (double)N - (double)k_min - 0.5) / (0.5 * sqrt((double)N));
-	printf("---------u==%lf\tu_std==%f---------\n", u, u_std[flag]);
+	printf("---------u==%.2lf\tu_std==%.2f---------\n", u, u_std[flag]);
 	if (u < u_std[flag])
 	{
 		result = 1;
@@ -636,7 +636,7 @@ int chk_SX(double *Q, double *Qc, int N) {
 			k_0 += 1;
 		}
 	}
-	printf("<debug--SX> k_0==%f\tk_1==%f\n",k_0,k_1);
+	printf("<debug--SX> k_0==%.0f\tk_1==%.0f\n",k_0,k_1);
 	if (k_0<k_1)
 	{
 		k_min = k_0;
@@ -660,7 +660,7 @@ int chk_SX(double *Q, double *Qc, int N) {
 	}
 	//printf("<debug--sx>  N==%lf\tk_min==%lf\t\n", (double)N, (double)k_min);
 	u = (0.5 * ((double)(N - 1)) - (double)k_min - 0.5) / (0.5 * sqrt((double)(N - 1)));
-	printf("---------u==%lf\tu_std==%f---------\n", u, u_std[flag]);
+	printf("---------u==%.2lf\tu_std==%.2f---------\n", u, u_std[flag]);
 	if (u < u_std[flag])
 	{
 		result = 1;
@@ -760,7 +760,7 @@ int chk_PLSZ(double *Q,double *Qc, int N)
 			n = k[i + 1] - k[i];
 			float t_std_calc = 0;
 			t_std_calc = t_std[flag_alpha][i] + ((k_calc-k[i])/(n)) * (t_std[flag_alpha][i + 1] - t_std[flag_alpha][i]);
-			printf("<debug--plsz>  t==%lf\tt_std-calc=%lf\n", t,  t_std_calc);
+			printf("<debug--plsz>  t==%.2lf\tt_std-calc=%.2lf\n", t,  t_std_calc);
 			//判断结果
 			if (t<t_std_calc)
 			{

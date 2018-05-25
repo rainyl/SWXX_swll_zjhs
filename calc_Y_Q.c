@@ -171,7 +171,7 @@ int main(void)
 		printf("×××××××××【%d】阶拟合曲线  Y=",m);
 		for(int j=0;j<=m;j++)
 		{ 
-			printf("%lf *  ", A[j]);
+			printf("%.2lf *  ", A[j]);
 			printf("P[%d] + ", j);
 		}
 		printf("\n\n");

@@ -4,7 +4,7 @@
 #include<stdlib.h>
 //#define N 13
 void input(double *,double *, int);
-void sort(double * ,double *, int);//排序函数
+void sort(double * ,double *, double *, int);//排序函数
 /**
  * **********计算函数*******************
  * calc_xy    --->   计算X，Y
@@ -58,7 +58,7 @@ int main(void)
 		exit(0);
 	}else
 	{
-		printf("\n\n×××××××××文件打开成功，数据如下，即将开始计算×××××××××\n\n");
+		printf("\n\n×××××××××文件打开成功，即将开始计算×××××××××\n\n");
 		/**获取行数**/
 		while(((c=fgetc(fp_data))!=EOF))
 		{
@@ -73,21 +73,23 @@ int main(void)
 		for(int i=0;i<n;i++)
 		{
 			fscanf(fp_data,"%lf\t%lf\t%lf",&Z[i],&Q[i],&area[i]);
-			printf("Z[%d]==%lf\tQ[%d]==%lf\tarea[%d]==%lf\n",i,Z[i],i,Q[i],i,area[i]);
 		}
 	}
 	/**输入函数**/
 	//input(Z,Q);
 	/**排序**/
 	printf("×××××××××开始对水位Z与对应的流量Q进行排序×××××××××\n");
-	sort(Z,Q,n);
+	sort(Z,Q,area,n);
 	//** debug,验证排序是否成功
 	printf("×××××××××排序完成，计算平均流速结果如下×××××××××\n");
+	printf("---N---|----Z----|----Q----|----A----|----U----\n");
 	for (int i = 0; i < n; i++)
 	{
-		printf("Z[%d]==%lf\t", i, Z[i]);
-		printf("Q[%d]==%lf\t", i, Q[i]);
-		printf("U[%d]==%lf\n", i, Q[i]/area[i]);
+		printf("%7d|", i);
+		printf("%9.2lf|", Z[i]);
+		printf("%9.2lf|", Q[i]);
+		printf("%9.2lf|", area[i]);
+		printf("%9.2lf\n", Q[i]/area[i]);
 	}
 //	**/
 	/**将Z，Q的值赋给X，Y**/
@@ -156,7 +158,7 @@ int main(void)
 		}
 		/**计算beta**/
 		beta[m] = calc_beta(P, m,  n);
-		printf("<debug--main> beta=%lf\n", beta[m]);
+	//	printf("<debug--main> beta=%lf\n", beta[m]);
 		/**计算系数A[]**/
 		if(m==1)
 		{ 
@@ -166,7 +168,7 @@ int main(void)
 		{
 			A[m]=calc_A(P, Y, m, n);
 		}
-		printf("×××××××××拟合曲线  Y=");
+		printf("×××××××××【%d】阶拟合曲线  Y=",m);
 		for(int j=0;j<=m;j++)
 		{ 
 			printf("%lf *  ", A[j]);
@@ -186,12 +188,14 @@ int main(void)
 			//printf("Qc[%d]=%lf\n", i, Qc[i]);
 		}
 
-		printf("×××××××××拟合流量、实测水位、实测流量分别如下×××××××××\n");
+		printf("×××××××××实测水位、实测流量、拟合流量分别如下×××××××××\n");
+		printf("---N---|----Z----|----Q----|----Qc----\n");
 		for(int i=0;i<n;i++)
 		{
-			printf("Qc[%d]=%lf\t\t", i, Qc[i]);
-			printf("Z[%d]=%lf\t", i, Z[i]);
-			printf("Q[%d]=%lf\n", i, Q[i]);
+			printf("%7d|", i);
+			printf("%9.2lf|", Z[i]);
+			printf("%9.2lf|", Q[i]);
+			printf("%9.2lf\n", Qc[i]);
 		}
 		/** 
 		 * chk_FH()为符号检验 
@@ -227,12 +231,13 @@ int main(void)
 		{
 			printf("=========偏离数值检验通过!=========\n\n");
 		}
-		//printf("<debug--main>m==%d\tm_jie==%d\tsContinue==%d\t\n",m,m_jie,isContinue);
+		printf("<debug--main>m==%d\tm_jie==%d\tsContinue==%d\t\n",m,m_jie,isContinue);
 		if(m<m_jie)
 		{
+			int flag=0;
 			for(int i=0;;i++)
 			{
-				printf("[%d]阶拟合完成且检验结果如上，是否进行[%d]阶拟合？\n退出请输入0\n继续请输入1\n已知水位计算拟合流量请输入2\n(默认退出拟合)\n请输入你的选择：",m,m+1);
+				printf("[%d]阶拟合完成且检验结果如上\n\t[0]退出\n\t[1]继续\n\t[2]已知水位计算拟合流量\n请输入你的选择：",m);
 				scanf("%d",&isContinue);
 				if(isContinue==0||isContinue==1||isContinue==2)
 				{
@@ -252,15 +257,38 @@ int main(void)
 			}else
 			{
 				printf("=======已知水位，开始计算拟合流量========\n\n");
-				Q_unknow = calc_Q_unknow(Z_0, m, alpha, beta, A);
-				printf("拟合流量 Q_unknow == %lf\n",Q_unknow);
+				for(int i=0;;i++)
+				{
+
+					Q_unknow = calc_Q_unknow(Z_0, m, alpha, beta, A);
+					printf("拟合流量 Q_unknow == %.2lf\n计算完成\n\t[0]退出计算并退出程序\n\t[1]退出计算并继续拟合\n\t[2]继续计算\n请选择：",Q_unknow);
+					for(int j=0;;j++)
+					{
+						scanf("%d",&isContinue);
+						if(isContinue==0||isContinue==1||isContinue==2)
+							break;
+						else
+							printf("输入错误，请重新输入：");
+					}
+					if(isContinue==0)
+					{	flag=0;
+						break;
+					}else if(isContinue==1)
+					{
+						flag=1;
+						break;
+					}else
+						continue;
+				}
+			if(isContinue==0&&flag==0)
 				break;
 			}
 		}else
 		{
+			int flag=0;
 			for(int i=0;;i++)
 			{
-				printf("【%d】阶拟合结束！是否拟合未知流量？\n是请输入【1】，否则请输入【0】\n",m);
+				printf("[%d]阶拟合完成且检验结果如上\n\t[0]退出\n\t[1]已知水位计算拟合流量\n请输入你的选择：",m);
 				scanf("%d",&isContinue);
 				if(isContinue==0)
 				{	
@@ -270,29 +298,34 @@ int main(void)
 				else if(isContinue==1)
 				{
 					printf("=======已知水位，开始计算拟合流量========\n\n");
-					Q_unknow = calc_Q_unknow(Z_0, m, alpha, beta, A);
-					printf("拟合流量 Q_unknow == %lf\n",Q_unknow);
-					break;
+					for(int i=0;;i++)
+					{
+	
+						Q_unknow = calc_Q_unknow(Z_0, m, alpha, beta, A);
+						printf("拟合流量 Q_unknow == %.2lf\n\n计算完成\n\t[0]退出计算并退出程序\n\t[1]继续计算\n请选择：",Q_unknow);
+						for(int j=0;;j++)
+						{
+							scanf("%d",&isContinue);
+							if(isContinue==0||isContinue==1)
+								break;
+							else
+								printf("输入错误，请重新输入：");
+						}
+						if(isContinue==0)
+						{	
+							flag=0;
+							break;
+						}
+					}
 				}else
 					printf("输入错误，请重新输入\n");
+				if(isContinue==0&&flag==0)
+					break;
 			}
 			break;
 		}
 
 	}
-	/**
-for(int i=0;i<m_jie;i++)
-		free(P[i]);
-	P=NULL;
-	free(P);
-	free(alpha);
-	free(beta);
-	
-	printf("AAAA==%p\n",A);
-	free(A);
-	A=NULL;
-	printf("AAAA\n");
-	**/
 	free(Z);
 	Z=NULL;
 	free(Q);
@@ -325,12 +358,12 @@ void input(double *p_z, double *p_q, int N)
 	}
 }
 /**排序函数，采用冒泡排序法**/
-void sort(double *p_z, double *p_q, int N)
+void sort(double *p_z, double *p_q, double *area, int N)
 {
 	double tmp = 0;
 	//printf("\n开始排序\n");
 	for (int i = 0; i < N - 1 ; i++)
-	{
+	{ 
 		for (int j = 0; j < N-1-i; j++)
 		{
 			if (p_z[j]>p_z[j+1])
@@ -341,6 +374,9 @@ void sort(double *p_z, double *p_q, int N)
 				tmp = p_q[j];
 				p_q[j] = p_q[j + 1];
 				p_q[j + 1] = tmp;
+				tmp=area[j];
+				area[j]=area[j+1];
+				area[j+1]=tmp;
 			}
 		}
 	}
@@ -591,7 +627,7 @@ int chk_SX(double *Q, double *Qc, int N) {
 	for (int i = 0; i < N; i++)
 	{
 		r[i] = Q[i] - Qc[i];
-		printf("<debug--sx>Q[%d]==%lf\tQc[%d]==%lf\tr[%d]==%lf\n",i,Q[i],i,Qc[i],i,r[i]);
+//		printf("<debug--sx>Q[%d]==%lf\tQc[%d]==%lf\tr[%d]==%lf\n",i,Q[i],i,Qc[i],i,r[i]);
 		if (i>=1&&r[i]*r[i-1]<0)
 		{
 			k_1 += 1;
@@ -634,7 +670,6 @@ int chk_SX(double *Q, double *Qc, int N) {
 	}
 	free(r);
 	r=NULL;
-	printf("<debug--sx> result==%d\n",result);
 	return result;
 }
 
